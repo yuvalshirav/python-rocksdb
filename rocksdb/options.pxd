@@ -133,6 +133,9 @@ cdef extern from "rocksdb/options.h" namespace "rocksdb":
         cpp_bool allow_concurrent_memtable_write
         cpp_bool enable_write_thread_adaptive_yield
 
+    cdef cppclass ImmutableCFOptions:
+        ImmutableCFOptions(const Options&)
+
     cdef cppclass WriteOptions:
         cpp_bool sync
         cpp_bool disableWAL

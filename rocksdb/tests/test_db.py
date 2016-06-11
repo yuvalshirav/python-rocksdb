@@ -7,8 +7,10 @@ from itertools import takewhile
 import struct
 from rocksdb.merge_operators import UintAddOperator, StringAppendOperator
 
+
 def int_to_bytes(ob):
     return str(ob).encode('ascii')
+
 
 class TestHelper(object):
     def _clean(self):
@@ -442,6 +444,7 @@ class TestComparator(unittest.TestCase, TestHelper):
 
         self.assertEqual(b'300', self.db.get(b'300'))
 
+
 class StaticPrefix(rocksdb.interfaces.SliceTransform):
     def name(self):
         return b'static'
@@ -454,6 +457,7 @@ class StaticPrefix(rocksdb.interfaces.SliceTransform):
 
     def in_range(self, dst):
         return len(dst) == 5
+
 
 class TestPrefixExtractor(unittest.TestCase, TestHelper):
     def setUp(self):
@@ -473,7 +477,6 @@ class TestPrefixExtractor(unittest.TestCase, TestHelper):
             self.db.put(keyx, b'x')
             self.db.put(keyy, b'y')
             self.db.put(keyz, b'z')
-
 
     def test_prefix_iterkeys(self):
         self._fill_db()
@@ -687,3 +690,42 @@ class TestDBColumnFamilies(unittest.TestCase, TestHelper):
             self.db.put(x, x, column_family=self.cf_a)
 
         self.db.compact_range(column_family=self.cf_a)
+
+
+class TestSstFileWriter(unittest.TestCase, TestHelper):
+    def setUp(self):
+        opts = rocksdb.Options(create_if_missing=True)
+        self._clean()
+        self.db = rocksdb.DB("/tmp/test", opts)
+
+    def tearDown(self):
+        self._close_db()
+
+    def test_ordered_exception(self):
+        writer = rocksdb.SstFileWriter('/tmp/test/test.sst_',
+                                       rocksdb.Options(create_if_missing=True),
+                                       rocksdb.EnvOptions())
+        keyvals = []
+        for x in range(300):
+            keyvals.append((int_to_bytes(x), int_to_bytes(x * 1000)))
+        expected = 'Keys must be added in order'
+        with self.assertRaisesRegexp(Exception, expected):
+            for key, val in keyvals:
+                writer.add(key, val)
+        writer.finish()
+
+    def test_add_and_injection(self):
+        writer = rocksdb.SstFileWriter('/tmp/test/test2.sst_',
+                                       rocksdb.Options(create_if_missing=True),
+                                       rocksdb.EnvOptions())
+        keyvals = []
+        for x in range(300):
+            keyvals.append((int_to_bytes(x), int_to_bytes(x * 1000)))
+        keyvals.sort(key=lambda x: x[0])
+        for key, val in keyvals:
+            writer.add(key, val)
+        writer.finish()
+
+        self.db.add_file('/tmp/test/test2.sst_')
+        for key, val in keyvals:
+            self.assertEqual(self.db.get(key), val)
