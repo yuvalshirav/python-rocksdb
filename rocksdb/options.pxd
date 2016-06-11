@@ -53,6 +53,7 @@ cdef extern from "rocksdb/options.h" namespace "rocksdb":
         kMinOverlappingRatio
 
     cdef cppclass Options:
+        Options* PrepareForBulkLoad()
         const Comparator* comparator
         shared_ptr[MergeOperator] merge_operator
         # TODO: compaction_filter
@@ -100,7 +101,6 @@ cdef extern from "rocksdb/options.h" namespace "rocksdb":
         uint64_t max_manifest_file_size
         int table_cache_numshardbits
         size_t arena_block_size
-        # TODO: PrepareForBulkLoad()
         cpp_bool disable_auto_compactions
         uint64_t WAL_ttl_seconds
         uint64_t WAL_size_limit_MB
