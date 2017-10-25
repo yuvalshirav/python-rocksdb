@@ -342,7 +342,7 @@ class TestStringAppendOperatorMerge(unittest.TestCase, TestHelper):
     def test_merge(self):
         self.db.put(b'a', b'ccc')
         self.db.merge(b'a', b'ddd')
-        self.assertEqual(self.db.get(b'a'), 'ccc,ddd')
+        self.assertEqual(self.db.get(b'a'), b'ccc,ddd')
 
 #  class TestStringMaxOperatorMerge(unittest.TestCase, TestHelper):
     #  def setUp(self):
