@@ -19,7 +19,8 @@ mod1 = Extension(
         '-Wall',
         '-Wextra',
         '-Wconversion',
-        '-fno-strict-aliasing'
+        '-fno-strict-aliasing',
+        '-I/home/louie/dev/iota/rocksdb'
     ],
     language='c++',
     libraries=[

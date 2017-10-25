@@ -1581,6 +1581,7 @@ cdef class DB(object):
         cdef string db_path
         cdef vector[db.ColumnFamilyDescriptor] column_family_descs
         cdef vector[db.ColumnFamilyHandle*] column_family_handles
+        cdef options.ColumnFamilyOptions coptions
 
         self.db = NULL
         self.opts = None
@@ -1606,8 +1607,11 @@ cdef class DB(object):
                         cython.address(self.db))
             check_status(st)
         else:
+            coptions = options.ColumnFamilyOptions()
+            coptions.merge_operator = merge_operator.MergeOperators.CreateStringAppendOperator()
+
             for column_family_name in column_families:
-              column_family_descs.push_back(db.ColumnFamilyDescriptor(column_family_name, options.ColumnFamilyOptions()))
+              column_family_descs.push_back(db.ColumnFamilyDescriptor(column_family_name, coptions))
 
             if read_only:
                 with nogil:
@@ -2003,6 +2007,7 @@ cdef class DB(object):
         cdef options.ColumnFamilyOptions coptions
 
         coptions = options.ColumnFamilyOptions()
+        coptions.merge_operator = merge_operator.MergeOperators.CreateStringAppendOperator()
         st = self.db.CreateColumnFamily(coptions, name, &cf_handle)
         check_status(st)
 
