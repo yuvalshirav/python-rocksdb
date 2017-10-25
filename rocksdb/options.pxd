@@ -159,11 +159,11 @@ cdef extern from "rocksdb/options.h" namespace "rocksdb":
 
     cdef cppclass ColumnFamilyOptions:
         # const Comparator* comparator
-        # shared_ptr[MergeOperator] merge_operator
+        shared_ptr[MergeOperator] merge_operator
         # # TODO: compaction_filter
         # # TODO: compaction_filter_factory
         size_t write_buffer_size
-        # int max_write_buffer_number
+        int max_write_buffer_number
         # int min_write_buffer_number_to_merge
         # int max_write_buffer_number_to_maintain
         # CompressionType compression
@@ -200,6 +200,7 @@ cdef extern from "rocksdb/options.h" namespace "rocksdb":
         # uint64_t max_sequential_skip_in_iterations
         # std::shared_ptr<MemTableRepFactory> memtable_factory
         # std::shared_ptr<TableFactory> table_factory
+        shared_ptr[TableFactory] table_factory
         # typedef std::vector<std::shared_ptr<TablePropertiesCollectorFactory>>
         #     TablePropertiesCollectorFactories
         # TablePropertiesCollectorFactories table_properties_collector_factories

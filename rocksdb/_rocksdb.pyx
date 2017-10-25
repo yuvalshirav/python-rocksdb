@@ -748,6 +748,8 @@ cdef class ColumnFamilyHandle(object):
 
 cdef class ColumnFamilyOptions(object):
     cdef options.ColumnFamilyOptions* opts
+    cdef PyMergeOperator py_merge_operator
+    cdef PyTableFactory py_table_factory
 
     # Used to protect sharing of Options with many DB-objects
     cdef cpp_bool in_use
@@ -757,9 +759,47 @@ cdef class ColumnFamilyOptions(object):
         self.opts = new options.ColumnFamilyOptions()
         self.in_use = False
 
+    def __init__(self, **kwargs):
+        self.py_merge_operator = None
+        self.py_table_factory = None
+
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
     def __dealloc__(self):
         if not self.opts == NULL:
             del self.opts
+
+    property write_buffer_size:
+        def __get__(self):
+            return self.opts.write_buffer_size
+        def __set__(self, value):
+            self.opts.write_buffer_size = value
+
+    property max_write_buffer_number:
+        def __get__(self):
+            return self.opts.max_write_buffer_number
+        def __set__(self, value):
+            self.opts.max_write_buffer_number = value
+
+    property merge_operator:
+        def __get__(self):
+            if self.py_merge_operator is None:
+                return None
+            return self.py_merge_operator.get_ob()
+
+        def __set__(self, value):
+            self.py_merge_operator = PyMergeOperator(value)
+            self.opts.merge_operator = self.py_merge_operator.get_operator()
+
+    property table_factory:
+        def __get__(self):
+            return self.py_table_factory
+
+        def __set__(self, PyTableFactory value):
+            self.py_table_factory = value
+            self.opts.table_factory = value.get_table_factory()
+
 
 cdef class Options(object):
     cdef options.Options* opts
