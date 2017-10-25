@@ -750,6 +750,7 @@ cdef class ColumnFamilyOptions(object):
     cdef options.ColumnFamilyOptions* opts
     cdef PyMergeOperator py_merge_operator
     cdef PyTableFactory py_table_factory
+    cdef PyMemtableFactory py_memtable_factory
 
     # Used to protect sharing of Options with many DB-objects
     cdef cpp_bool in_use
@@ -792,6 +793,14 @@ cdef class ColumnFamilyOptions(object):
             self.py_merge_operator = PyMergeOperator(value)
             self.opts.merge_operator = self.py_merge_operator.get_operator()
 
+    property memtable_factory:
+        def __get__(self):
+            return self.py_memtable_factory
+
+        def __set__(self, PyMemtableFactory value):
+            self.py_memtable_factory = value
+            self.opts.memtable_factory = value.get_memtable_factory()
+
     property table_factory:
         def __get__(self):
             return self.py_table_factory
@@ -799,6 +808,78 @@ cdef class ColumnFamilyOptions(object):
         def __set__(self, PyTableFactory value):
             self.py_table_factory = value
             self.opts.table_factory = value.get_table_factory()
+
+    property compression_opts:
+        def __get__(self):
+            cdef dict ret_ob = {}
+
+            ret_ob['window_bits'] = self.opts.compression_opts.window_bits
+            ret_ob['level'] = self.opts.compression_opts.level
+            ret_ob['strategy'] = self.opts.compression_opts.strategy
+            ret_ob['max_dict_bytes'] = self.opts.compression_opts.max_dict_bytes
+
+            return ret_ob
+
+        def __set__(self, dict value):
+            cdef options.CompressionOptions* copts
+            copts = cython.address(self.opts.compression_opts)
+            #  CompressionOptions(int wbits, int _lev, int _strategy, int _max_dict_bytes)
+            if 'window_bits' in value:
+                copts.window_bits  = value['window_bits']
+            if 'level' in value:
+                copts.level = value['level']
+            if 'strategy' in value:
+                copts.strategy = value['strategy']
+            if 'max_dict_bytes' in value:
+                copts.max_dict_bytes = value['max_dict_bytes']
+
+    property compression:
+        def __get__(self):
+            if self.opts.compression == options.kNoCompression:
+                return CompressionType.no_compression
+            elif self.opts.compression  == options.kSnappyCompression:
+                return CompressionType.snappy_compression
+            elif self.opts.compression == options.kZlibCompression:
+                return CompressionType.zlib_compression
+            elif self.opts.compression == options.kBZip2Compression:
+                return CompressionType.bzip2_compression
+            elif self.opts.compression == options.kLZ4Compression:
+                return CompressionType.lz4_compression
+            elif self.opts.compression == options.kLZ4HCCompression:
+                return CompressionType.lz4hc_compression
+            elif self.opts.compression == options.kXpressCompression:
+                return CompressionType.xpress_compression
+            elif self.opts.compression == options.kZSTD:
+                return CompressionType.zstd_compression
+            elif self.opts.compression == options.kZSTDNotFinalCompression:
+                return CompressionType.zstdnotfinal_compression
+            elif self.opts.compression == options.kDisableCompressionOption:
+                return CompressionType.disable_compression
+            else:
+                raise Exception("Unknown type: %s" % self.opts.compression)
+
+        def __set__(self, value):
+            if value == CompressionType.no_compression:
+                self.opts.compression = options.kNoCompression
+            elif value == CompressionType.snappy_compression:
+                self.opts.compression = options.kSnappyCompression
+            elif value == CompressionType.zlib_compression:
+                self.opts.compression = options.kZlibCompression
+            elif value == CompressionType.bzip2_compression:
+                self.opts.compression = options.kBZip2Compression
+            elif value == CompressionType.lz4_compression:
+                self.opts.compression = options.kLZ4Compression
+            elif value == CompressionType.lz4hc_compression:
+                self.opts.compression = options.kLZ4HCCompression
+            elif value == CompressionType.zstd_compression:
+                self.opts.compression = options.kZSTD
+            elif value == CompressionType.zstdnotfinal_compression:
+                self.opts.compression = options.kZSTDNotFinalCompression
+            elif value == CompressionType.disable_compression:
+                self.opts.compression = options.kDisableCompressionOption
+            else:
+                raise TypeError("Unknown compression: %s" % value)
+
 
 
 cdef class Options(object):
