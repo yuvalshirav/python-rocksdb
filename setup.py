@@ -35,6 +35,7 @@ setup(
     name="python-rocksdb-iota",
     version='0.7.0',
     description="Python bindings for RocksDB with IOTA modification",
+    long_description=open('README.rst', 'r').read(),
     keywords='rocksdb, IOTA',
     author='Louie Lu',
     author_email="git@louie.lu",
@@ -46,5 +47,11 @@ setup(
     ext_modules=cythonize([mod1]),
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
-    include_package_data=True
+    include_package_data=True,
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: Python :: 3 :: Only'
+    ]
 )
