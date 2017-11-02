@@ -1,12 +1,20 @@
 Note
 =========
-The original pyrocksdb (https://pypi.python.org/pypi/pyrocksdb/0.4) has not been updated for long time. I update pyrocksdb to support the latest rocksdb. Please open issues in github if you have any problem.
+The original pyrocksdb (https://pypi.python.org/pypi/pyrocksdb/0.4) has not been updated for long time.
+[twmht update pyrocksdb](https://github.com/twmht/python-rocksdb) to support the latest rocksdb.
 
+This is a pyrocksdb for IOTA, Please open issues in github if you have any problem.
+
+The main different is:
+
+* Fix column family problem and test cases
+* Using StringAppendOperator as column family merge operator default
+* Rename package from `rocksdb` to `rocksdb_iota`
 
 pyrocksdb
 =========
 
-Python bindings for RocksDB.
+Python bindings for RocksDB with IOTA modification.
 See http://python-rocksdb.readthedocs.io/en/latest/ for a more comprehensive install and usage description.
 
 
@@ -32,7 +40,7 @@ Quick install for debian/ubuntu like linux distributions.
     $ virtualenv pyrocks_test
     $ cd pyrocks_test
     $ . bin/active
-    $ pip install python-rocksdb
+    $ pip install python-rocksdb-iota
 
 
 Quick Usage Guide
@@ -40,8 +48,8 @@ Quick Usage Guide
 
 .. code-block:: pycon
 
-    >>> import rocksdb
-    >>> db = rocksdb.DB("test.db", rocksdb.Options(create_if_missing=True))
+    >>> import rocksdb_iota
+    >>> db = rocksdb_iota.DB("test.db", rocksdb.Options(create_if_missing=True))
     >>> db.put(b'a', b'data')
     >>> print db.get(b'a')
     b'data'

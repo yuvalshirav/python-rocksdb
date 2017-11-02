@@ -2,10 +2,10 @@ import os
 import shutil
 import gc
 import unittest
-import rocksdb
+import rocksdb_iota
 from itertools import takewhile
 import struct
-from rocksdb.merge_operators import UintAddOperator, StringAppendOperator
+from rocksdb_iota.merge_operators import UintAddOperator, StringAppendOperator
 
 def int_to_bytes(ob):
     return str(ob).encode('ascii')
@@ -22,9 +22,9 @@ class TestHelper(object):
 
 class TestDB(unittest.TestCase, TestHelper):
     def setUp(self):
-        opts = rocksdb.Options(create_if_missing=True)
+        opts = rocksdb_iota.Options(create_if_missing=True)
         self._clean()
-        self.db = rocksdb.DB("/tmp/test", opts)
+        self.db = rocksdb_iota.DB("/tmp/test", opts)
 
     def tearDown(self):
         self._close_db()
@@ -32,11 +32,11 @@ class TestDB(unittest.TestCase, TestHelper):
     def test_options_used_twice(self):
         expected = "Options object is already used by another DB"
         with self.assertRaisesRegexp(Exception, expected):
-            rocksdb.DB("/tmp/test2", self.db.options)
+            rocksdb_iota.DB("/tmp/test2", self.db.options)
 
     def test_unicode_path(self):
         name = b'/tmp/M\xc3\xbcnchen'.decode('utf8')
-        rocksdb.DB(name, rocksdb.Options(create_if_missing=True))
+        rocksdb_iota.DB(name, rocksdb_iota.Options(create_if_missing=True))
         self.addCleanup(shutil.rmtree, name)
         self.assertTrue(os.path.isdir(name))
 
@@ -63,7 +63,7 @@ class TestDB(unittest.TestCase, TestHelper):
         self.assertIsNone(self.db.get(b"a"))
 
     def test_write_batch(self):
-        batch = rocksdb.WriteBatch()
+        batch = rocksdb_iota.WriteBatch()
         batch.put(b"key", b"v1")
         batch.delete(b"key")
         batch.put(b"key", b"v2")
@@ -76,7 +76,7 @@ class TestDB(unittest.TestCase, TestHelper):
         self.assertEqual(ref, ret)
 
     def test_write_batch_iter(self):
-        batch = rocksdb.WriteBatch()
+        batch = rocksdb_iota.WriteBatch()
         self.assertEqual([], list(batch))
 
         batch.put(b"key1", b"v1")
@@ -268,7 +268,7 @@ class TestDB(unittest.TestCase, TestHelper):
         self.db.compact_range()
 
 
-class AssocCounter(rocksdb.interfaces.AssociativeMergeOperator):
+class AssocCounter(rocksdb_iota.interfaces.AssociativeMergeOperator):
     def merge(self, key, existing_value, value):
         if existing_value:
             return (True, int_to_bytes(int(existing_value) + int(value)))
@@ -280,11 +280,11 @@ class AssocCounter(rocksdb.interfaces.AssociativeMergeOperator):
 
 class TestUint64Merge(unittest.TestCase, TestHelper):
     def setUp(self):
-        opts = rocksdb.Options()
+        opts = rocksdb_iota.Options()
         opts.create_if_missing = True
         opts.merge_operator = UintAddOperator()
         self._clean()
-        self.db = rocksdb.DB('/tmp/test', opts)
+        self.db = rocksdb_iota.DB('/tmp/test', opts)
 
     def tearDown(self):
         self._close_db()
@@ -298,11 +298,11 @@ class TestUint64Merge(unittest.TestCase, TestHelper):
 
 #  class TestPutMerge(unittest.TestCase, TestHelper):
     #  def setUp(self):
-        #  opts = rocksdb.Options()
+        #  opts = rocksdb_iota.Options()
         #  opts.create_if_missing = True
         #  opts.merge_operator = "put"
         #  self._clean()
-        #  self.db = rocksdb.DB('/tmp/test', opts)
+        #  self.db = rocksdb_iota.DB('/tmp/test', opts)
 
     #  def tearDown(self):
         #  self._close_db()
@@ -314,11 +314,11 @@ class TestUint64Merge(unittest.TestCase, TestHelper):
 
 #  class TestPutV1Merge(unittest.TestCase, TestHelper):
     #  def setUp(self):
-        #  opts = rocksdb.Options()
+        #  opts = rocksdb_iota.Options()
         #  opts.create_if_missing = True
         #  opts.merge_operator = "put_v1"
         #  self._clean()
-        #  self.db = rocksdb.DB('/tmp/test', opts)
+        #  self.db = rocksdb_iota.DB('/tmp/test', opts)
 
     #  def tearDown(self):
         #  self._close_db()
@@ -330,11 +330,11 @@ class TestUint64Merge(unittest.TestCase, TestHelper):
 
 class TestStringAppendOperatorMerge(unittest.TestCase, TestHelper):
     def setUp(self):
-        opts = rocksdb.Options()
+        opts = rocksdb_iota.Options()
         opts.create_if_missing = True
         opts.merge_operator = StringAppendOperator()
         self._clean()
-        self.db = rocksdb.DB('/tmp/test', opts)
+        self.db = rocksdb_iota.DB('/tmp/test', opts)
 
     def tearDown(self):
         self._close_db()
@@ -346,11 +346,11 @@ class TestStringAppendOperatorMerge(unittest.TestCase, TestHelper):
 
 #  class TestStringMaxOperatorMerge(unittest.TestCase, TestHelper):
     #  def setUp(self):
-        #  opts = rocksdb.Options()
+        #  opts = rocksdb_iota.Options()
         #  opts.create_if_missing = True
         #  opts.merge_operator = "max"
         #  self._clean()
-        #  self.db = rocksdb.DB('/tmp/test', opts)
+        #  self.db = rocksdb_iota.DB('/tmp/test', opts)
 
     #  def tearDown(self):
         #  self._close_db()
@@ -363,11 +363,11 @@ class TestStringAppendOperatorMerge(unittest.TestCase, TestHelper):
 
 class TestAssocMerge(unittest.TestCase, TestHelper):
     def setUp(self):
-        opts = rocksdb.Options()
+        opts = rocksdb_iota.Options()
         opts.create_if_missing = True
         opts.merge_operator = AssocCounter()
         self._clean()
-        self.db = rocksdb.DB('/tmp/test', opts)
+        self.db = rocksdb_iota.DB('/tmp/test', opts)
 
     def tearDown(self):
         self._close_db()
@@ -378,7 +378,7 @@ class TestAssocMerge(unittest.TestCase, TestHelper):
         self.assertEqual(sum(range(1000)), int(self.db.get(b'a')))
 
 
-class FullCounter(rocksdb.interfaces.MergeOperator):
+class FullCounter(rocksdb_iota.interfaces.MergeOperator):
     def name(self):
         return b'fullcounter'
 
@@ -395,11 +395,11 @@ class FullCounter(rocksdb.interfaces.MergeOperator):
 
 class TestFullMerge(unittest.TestCase, TestHelper):
     def setUp(self):
-        opts = rocksdb.Options()
+        opts = rocksdb_iota.Options()
         opts.create_if_missing = True
         opts.merge_operator = FullCounter()
         self._clean()
-        self.db = rocksdb.DB('/tmp/test', opts)
+        self.db = rocksdb_iota.DB('/tmp/test', opts)
 
     def tearDown(self):
         self._close_db()
@@ -410,7 +410,7 @@ class TestFullMerge(unittest.TestCase, TestHelper):
         self.assertEqual(sum(range(1000)), int(self.db.get(b'a')))
 
 
-class SimpleComparator(rocksdb.interfaces.Comparator):
+class SimpleComparator(rocksdb_iota.interfaces.Comparator):
     def name(self):
         return b'mycompare'
 
@@ -427,11 +427,11 @@ class SimpleComparator(rocksdb.interfaces.Comparator):
 
 class TestComparator(unittest.TestCase, TestHelper):
     def setUp(self):
-        opts = rocksdb.Options()
+        opts = rocksdb_iota.Options()
         opts.create_if_missing = True
         opts.comparator = SimpleComparator()
         self._clean()
-        self.db = rocksdb.DB('/tmp/test', opts)
+        self.db = rocksdb_iota.DB('/tmp/test', opts)
 
     def tearDown(self):
         self._close_db()
@@ -442,7 +442,7 @@ class TestComparator(unittest.TestCase, TestHelper):
 
         self.assertEqual(b'300', self.db.get(b'300'))
 
-class StaticPrefix(rocksdb.interfaces.SliceTransform):
+class StaticPrefix(rocksdb_iota.interfaces.SliceTransform):
     def name(self):
         return b'static'
 
@@ -457,10 +457,10 @@ class StaticPrefix(rocksdb.interfaces.SliceTransform):
 
 class TestPrefixExtractor(unittest.TestCase, TestHelper):
     def setUp(self):
-        opts = rocksdb.Options(create_if_missing=True)
+        opts = rocksdb_iota.Options(create_if_missing=True)
         opts.prefix_extractor = StaticPrefix()
         self._clean()
-        self.db = rocksdb.DB('/tmp/test', opts)
+        self.db = rocksdb_iota.DB('/tmp/test', opts)
 
     def tearDown(self):
         self._close_db()
@@ -501,9 +501,9 @@ class TestPrefixExtractor(unittest.TestCase, TestHelper):
 
 class TestDBColumnFamilies(unittest.TestCase, TestHelper):
     def setUp(self):
-        opts = rocksdb.Options(create_if_missing=True)
+        opts = rocksdb_iota.Options(create_if_missing=True)
         self._clean()
-        self.db = rocksdb.DB("/tmp/test", opts, column_families=[b"default"])
+        self.db = rocksdb_iota.DB("/tmp/test", opts, column_families=[b"default"])
         self.cf_a = self.db.create_column_family(b"A")
         self.cf_b = self.db.create_column_family(b"B")
 
@@ -539,7 +539,7 @@ class TestDBColumnFamilies(unittest.TestCase, TestHelper):
         self.assertIsNone(self.db.get(b"a", column_family=self.cf_a))
 
     def test_write_batch(self):
-        batch = rocksdb.WriteBatch()
+        batch = rocksdb_iota.WriteBatch()
         batch.put(b"key", b"v1", column_family=self.cf_a)
         batch.delete(b"key", column_family=self.cf_a)
         batch.put(b"key", b"v2", column_family=self.cf_a)

@@ -6,12 +6,12 @@ try:
     from Cython.Build import cythonize
 except ImportError:
     def cythonize(extensions): return extensions
-    sources = ['rocksdb/_rocksdb.cpp']
+    sources = ['rocksdb_iota/_rocksdb.cpp']
 else:
-    sources = ['rocksdb/_rocksdb.pyx']
+    sources = ['rocksdb_iota/_rocksdb.pyx']
 
 mod1 = Extension(
-    'rocksdb._rocksdb',
+    'rocksdb_iota._rocksdb',
     sources,
     extra_compile_args=[
         '-std=c++11',
@@ -32,16 +32,16 @@ mod1 = Extension(
 )
 
 setup(
-    name="python-rocksdb",
-    version='0.6.7',
-    description="Python bindings for RocksDB",
-    keywords='rocksdb',
-    author='Ming Hsuan Tu',
-    author_email="Use the github issues",
-    url="https://github.com/twmht/python-rocksdb",
+    name="python-rocksdb-iota",
+    version='0.7.0',
+    description="Python bindings for RocksDB with IOTA modification",
+    keywords='rocksdb, IOTA',
+    author='Louie Lu',
+    author_email="git@louie.lu",
+    url="https://github.com/mlouielu/python-rocksdb",
     license='BSD License',
     install_requires=['setuptools'],
-    package_dir={'rocksdb': 'rocksdb'},
+    package_dir={'rocksdb_iota': 'rocksdb_iota'},
     packages=find_packages('.'),
     ext_modules=cythonize([mod1]),
     setup_requires=['pytest-runner'],

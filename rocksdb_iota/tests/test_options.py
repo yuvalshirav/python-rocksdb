@@ -1,7 +1,7 @@
 import unittest
-import rocksdb
+import rocksdb_iota
 
-class TestFilterPolicy(rocksdb.interfaces.FilterPolicy):
+class TestFilterPolicy(rocksdb_iota.interfaces.FilterPolicy):
     def create_filter(self, keys):
         return b'nix'
 
@@ -11,7 +11,7 @@ class TestFilterPolicy(rocksdb.interfaces.FilterPolicy):
     def name(self):
         return b'testfilter'
 
-class TestMergeOperator(rocksdb.interfaces.MergeOperator):
+class TestMergeOperator(rocksdb_iota.interfaces.MergeOperator):
     def full_merge(self, *args, **kwargs):
         return (False, None)
 
@@ -23,7 +23,7 @@ class TestMergeOperator(rocksdb.interfaces.MergeOperator):
 
 class TestOptions(unittest.TestCase):
     #  def test_default_merge_operator(self):
-        #  opts = rocksdb.Options()
+        #  opts = rocksdb_iota.Options()
         #  self.assertEqual(True, opts.paranoid_checks)
         #  opts.paranoid_checks = False
         #  self.assertEqual(False, opts.paranoid_checks)
@@ -36,30 +36,30 @@ class TestOptions(unittest.TestCase):
             #  opts.merge_operator = "not an operator"
 
     def test_compaction_pri(self):
-        opts = rocksdb.Options()
+        opts = rocksdb_iota.Options()
         # default compaction_pri 
-        self.assertEqual(opts.compaction_pri, rocksdb.CompactionPri.by_compensated_size)
-        opts.compaction_pri = rocksdb.CompactionPri.by_compensated_size
-        self.assertEqual(opts.compaction_pri, rocksdb.CompactionPri.by_compensated_size)
-        opts.compaction_pri = rocksdb.CompactionPri.oldest_largest_seq_first
-        self.assertEqual(opts.compaction_pri, rocksdb.CompactionPri.oldest_largest_seq_first)
-        opts.compaction_pri = rocksdb.CompactionPri.min_overlapping_ratio
-        self.assertEqual(opts.compaction_pri, rocksdb.CompactionPri.min_overlapping_ratio)
+        self.assertEqual(opts.compaction_pri, rocksdb_iota.CompactionPri.by_compensated_size)
+        opts.compaction_pri = rocksdb_iota.CompactionPri.by_compensated_size
+        self.assertEqual(opts.compaction_pri, rocksdb_iota.CompactionPri.by_compensated_size)
+        opts.compaction_pri = rocksdb_iota.CompactionPri.oldest_largest_seq_first
+        self.assertEqual(opts.compaction_pri, rocksdb_iota.CompactionPri.oldest_largest_seq_first)
+        opts.compaction_pri = rocksdb_iota.CompactionPri.min_overlapping_ratio
+        self.assertEqual(opts.compaction_pri, rocksdb_iota.CompactionPri.min_overlapping_ratio)
 
     def test_enable_write_thread_adaptive_yield(self):
-        opts = rocksdb.Options()
+        opts = rocksdb_iota.Options()
         self.assertEqual(opts.enable_write_thread_adaptive_yield, True)
         opts.enable_write_thread_adaptive_yield = False
         self.assertEqual(opts.enable_write_thread_adaptive_yield, False)
 
     def test_allow_concurrent_memtable_write(self):
-        opts = rocksdb.Options()
+        opts = rocksdb_iota.Options()
         self.assertEqual(opts.allow_concurrent_memtable_write, True)
         opts.allow_concurrent_memtable_write = False
         self.assertEqual(opts.allow_concurrent_memtable_write, False)
 
     def test_compression_opts(self):
-        opts = rocksdb.Options()
+        opts = rocksdb_iota.Options()
         compression_opts = opts.compression_opts
         # default value
         self.assertEqual(isinstance(compression_opts, dict), True)
@@ -79,7 +79,7 @@ class TestOptions(unittest.TestCase):
         self.assertEqual(compression_opts['max_dict_bytes'], 4)
 
     def test_simple(self):
-        opts = rocksdb.Options()
+        opts = rocksdb_iota.Options()
         self.assertEqual(True, opts.paranoid_checks)
         opts.paranoid_checks = False
         self.assertEqual(False, opts.paranoid_checks)
@@ -91,22 +91,22 @@ class TestOptions(unittest.TestCase):
 
         self.assertIsInstance(
             opts.comparator,
-            rocksdb.BytewiseComparator)
+            rocksdb_iota.BytewiseComparator)
 
-        self.assertEqual(rocksdb.CompressionType.snappy_compression, opts.compression)
+        self.assertEqual(rocksdb_iota.CompressionType.snappy_compression, opts.compression)
 
-        opts.compression = rocksdb.CompressionType.zstd_compression
-        self.assertEqual(rocksdb.CompressionType.zstd_compression, opts.compression)
+        opts.compression = rocksdb_iota.CompressionType.zstd_compression
+        self.assertEqual(rocksdb_iota.CompressionType.zstd_compression, opts.compression)
 
     def test_block_options(self):
-        rocksdb.BlockBasedTableFactory(
+        rocksdb_iota.BlockBasedTableFactory(
             block_size=4096,
             filter_policy=TestFilterPolicy(),
-            block_cache=rocksdb.LRUCache(100))
+            block_cache=rocksdb_iota.LRUCache(100))
 
     def test_unicode_path(self):
         name = b'/tmp/M\xc3\xbcnchen'.decode('utf8')
-        opts = rocksdb.Options()
+        opts = rocksdb_iota.Options()
         opts.db_log_dir = name
         opts.wal_dir = name
 
@@ -114,14 +114,14 @@ class TestOptions(unittest.TestCase):
         self.assertEqual(name, opts.wal_dir)
 
     def test_table_factory(self):
-        opts = rocksdb.Options()
+        opts = rocksdb_iota.Options()
         self.assertIsNone(opts.table_factory)
 
-        opts.table_factory = rocksdb.BlockBasedTableFactory()
-        opts.table_factory = rocksdb.PlainTableFactory()
+        opts.table_factory = rocksdb_iota.BlockBasedTableFactory()
+        opts.table_factory = rocksdb_iota.PlainTableFactory()
 
     def test_compaction_style(self):
-        opts = rocksdb.Options()
+        opts = rocksdb_iota.Options()
         self.assertEqual('level', opts.compaction_style)
 
         opts.compaction_style = 'universal'
@@ -134,7 +134,7 @@ class TestOptions(unittest.TestCase):
             opts.compaction_style = 'foo'
 
     def test_compaction_opts_universal(self):
-        opts = rocksdb.Options()
+        opts = rocksdb_iota.Options()
         uopts = opts.compaction_options_universal
         self.assertEqual(-1, uopts['compression_size_percent'])
         self.assertEqual(200, uopts['max_size_amplification_percent'])
@@ -155,7 +155,7 @@ class TestOptions(unittest.TestCase):
         self.assertEqual(30, uopts['max_merge_width'])
 
     def test_row_cache(self):
-        opts = rocksdb.Options()
+        opts = rocksdb_iota.Options()
         self.assertIsNone(opts.row_cache)
-        opts.row_cache = cache = rocksdb.LRUCache(2*1024*1024)
+        opts.row_cache = cache = rocksdb_iota.LRUCache(2*1024*1024)
         self.assertEqual(cache, opts.row_cache)
