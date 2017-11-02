@@ -20,7 +20,7 @@ mod1 = Extension(
         '-Wextra',
         '-Wconversion',
         '-fno-strict-aliasing',
-        '-I/home/louie/dev/iota/rocksdb'
+        '-Iinclude'
     ],
     language='c++',
     libraries=[
