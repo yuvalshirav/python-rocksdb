@@ -11,7 +11,6 @@ cdef extern from "rocksdb/env.h" namespace "rocksdb":
     cdef struct EnvOptions:
         EnvOptions()
         # TODO: EnvOptions(DBOptions&)
-        cpp_bool use_os_buffer
         cpp_bool use_mmap_reads
         cpp_bool use_mmap_writes
         # cpp_bool use_direct_reads

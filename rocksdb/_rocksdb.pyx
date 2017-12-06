@@ -812,12 +812,6 @@ cdef class EnvOptions(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    property use_os_buffer:
-        def __get__(self):
-            return self.env.use_os_buffer
-        def __set__(self, value):
-            self.env.use_os_buffer = value
-
     property use_mmap_reads:
         def __get__(self):
             return self.env.use_mmap_reads
