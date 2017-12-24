@@ -1130,6 +1130,12 @@ cdef class Options(object):
         def __set__(self, value):
             self.opts.max_background_compactions = value
 
+    property base_background_compactions:
+        def __get__(self):
+            return self.opts.base_background_compactions
+        def __set__(self, value):
+            self.opts.base_background_compactions = value
+
     property max_subcompactions:
         def __get__(self):
             return self.opts.max_subcompactions
