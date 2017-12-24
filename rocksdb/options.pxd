@@ -91,6 +91,7 @@ cdef extern from "rocksdb/options.h" namespace "rocksdb":
         string wal_dir
         uint64_t delete_obsolete_files_period_micros
         int max_background_compactions
+        int max_subcompactions
         int max_background_flushes
         size_t max_log_file_size
         size_t log_file_time_to_roll
