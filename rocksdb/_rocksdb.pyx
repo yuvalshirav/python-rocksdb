@@ -1758,7 +1758,7 @@ cdef class DB(object):
         cdef db.ColumnFamilyHandle* cf_handle
 
         opts = self.build_read_opts(self.__parse_read_opts(*args, **kwargs))
-        cdef Slice c_key = Slice(&key)
+        cdef Slice c_key = Slice(key)
 
         if column_family is None:
             with nogil:
