@@ -1751,14 +1751,14 @@ cdef class DB(object):
         else:
             check_status(st)
 
-    def gets(self, key, ColumnFamilyHandle column_family=None, *args, **kwargs):
+    def gets(self, string key, ColumnFamilyHandle column_family=None, *args, **kwargs):
         cdef string res
         cdef Status st
         cdef options.ReadOptions opts
         cdef db.ColumnFamilyHandle* cf_handle
 
         opts = self.build_read_opts(self.__parse_read_opts(*args, **kwargs))
-        cdef Slice c_key = bytes_to_slice(key)
+        cdef Slice c_key = Slice(&key)
 
         if column_family is None:
             with nogil:
