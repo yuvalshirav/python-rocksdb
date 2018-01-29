@@ -30,6 +30,9 @@ cdef extern from "rocksdb/table.h" namespace "rocksdb":
         shared_ptr[Cache] block_cache
         shared_ptr[Cache] block_cache_compressed
         shared_ptr[FilterPolicy] filter_policy
+        cpp_bool cache_index_and_filter_blocks
+        cpp_bool cache_index_and_filter_blocks_with_high_priority
+        
 
     cdef TableFactory* NewBlockBasedTableFactory(const BlockBasedTableOptions&)
 
