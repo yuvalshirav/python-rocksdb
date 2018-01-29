@@ -1751,6 +1751,31 @@ cdef class DB(object):
         else:
             check_status(st)
 
+    def gets(self, key, ColumnFamilyHandle column_family=None, *args, **kwargs):
+        cdef string res
+        cdef Status st
+        cdef options.ReadOptions opts
+        cdef db.ColumnFamilyHandle* cf_handle
+
+        opts = self.build_read_opts(self.__parse_read_opts(*args, **kwargs))
+        cdef Slice c_key = bytes_to_slice(key)
+
+        if column_family is None:
+            with nogil:
+                st = self.db.Get(opts, c_key, cython.address(res))
+        else:
+            cf_handle = column_family.handle
+            with nogil:
+                st = self.db.Get(opts, cf_handle, c_key, cython.address(res))
+
+        if st.ok():
+            return res
+        elif st.IsNotFound():
+            return string()
+        else:
+            check_status(st)
+
+
     def multi_get(self, keys, column_families=None, *args, **kwargs):
         cdef vector[string] values
         values.resize(len(keys))
