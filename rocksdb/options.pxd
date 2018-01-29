@@ -94,6 +94,9 @@ cdef extern from "rocksdb/options.h" namespace "rocksdb":
         int base_background_compactions
         int max_subcompactions
         int max_background_flushes
+        cpp_bool use_direct_reads
+        size_t compaction_readahead_size
+        size_t writable_file_max_buffer_size
         size_t max_log_file_size
         size_t log_file_time_to_roll
         size_t keep_log_file_num

@@ -1142,6 +1142,24 @@ cdef class Options(object):
         def __set__(self, value):
             self.opts.max_subcompactions = value
 
+    property use_direct_reads:
+        def __get__(self):
+            return self.opts.use_direct_reads
+        def __set__(self, value):
+            self.opts.use_direct_reads = value
+
+    property compaction_readahead_size:
+        def __get__(self):
+            return self.opts.compaction_readahead_size
+        def __set__(self, value):
+            self.opts.compaction_readahead_size = value
+
+    property writable_file_max_buffer_size:
+        def __get__(self):
+            return self.opts.writable_file_max_buffer_size
+        def __set__(self, value):
+            self.opts.writable_file_max_buffer_size = value
+
     property max_background_flushes:
         def __get__(self):
             return self.opts.max_background_flushes
