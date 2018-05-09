@@ -55,6 +55,18 @@ import errors
 
 ctypedef const filter_policy.FilterPolicy ConstFilterPolicy
 
+
+cdef options.ReadOptions get_default_read_options():
+    cdef options.ReadOptions opts
+    opts.verify_checksums = False
+    opts.fill_cache = True
+    opts.read_tier = options.kReadAllTier
+    return opts
+
+
+cdef options.ReadOptions DEFAULT_READ_OPTIONS = get_default_read_options()
+
+
 cdef extern from "cpp/utils.hpp" namespace "py_rocks":
     cdef const Slice* vector_data(vector[Slice]&)
 
@@ -1589,6 +1601,13 @@ cdef class WriteBatchIterator(object):
         self.pos += 1
         return ret
 
+
+cdef class StringWrapper:
+
+    #cdef public string s
+    pass
+    
+
 @cython.no_gc_clear
 cdef class DB(object):
     cdef Options opts
@@ -1774,6 +1793,21 @@ cdef class DB(object):
         else:
             check_status(st)
 
+    def simple_get(self, string key):
+        cdef Status st
+        cdef StringWrapper string_wrapper = StringWrapper()
+
+        with nogil:
+            st = self.db.Get(DEFAULT_READ_OPTIONS, Slice(key), cython.address(string_wrapper.s))
+
+        if st.ok():
+            return string_wrapper
+        elif st.IsNotFound():
+            string_wrapper.s = string()
+            return string_wrapper
+        else:
+            check_status(st)
+
     def gets(self, string key, ColumnFamilyHandle column_family=None, *args, **kwargs):
         cdef string res
         cdef Status st
@@ -1842,6 +1876,19 @@ cdef class DB(object):
                 check_status(res[index])
 
         return ret_dict
+
+    def simple_key_may_exist(self, string key):
+        cdef string value
+        cdef cpp_bool exists
+
+        with nogil:
+            exists = self.db.KeyMayExist(
+                DEFAULT_READ_OPTIONS,
+                Slice(key),
+                cython.address(value))
+
+        return exists
+
 
     def key_may_exist(self, key, ColumnFamilyHandle column_family=None, fetch=False, *args, **kwargs):
         cdef string value
