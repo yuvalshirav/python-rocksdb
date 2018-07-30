@@ -228,6 +228,15 @@ cdef extern from "rocksdb/options.h" namespace "rocksdb":
         # bool paranoid_file_checks
         # bool compaction_measure_io_stats
 
-
-
-
+    cdef cppclass IngestExternalFileOptions:
+       #Can be set to true to move the files instead of copying them.
+      cpp_bool move_files
+      # If set to false, an ingested file keys could appear in existing snapshots
+      # that where created before the file was ingested.
+      cpp_bool snapshot_consistency
+      # If set to false, IngestExternalFile() will fail if the file key range
+      # overlaps with existing keys or tombstones in the DB.
+      cpp_bool allow_global_seqno
+      #If set to false and the file key range overlaps with the memtable key range
+      # (memtable flush required), IngestExternalFile will fail.
+      cpp_bool allow_blocking_flush

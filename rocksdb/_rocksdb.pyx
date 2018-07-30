@@ -819,8 +819,22 @@ cdef class ColumnFamilyOptions(object):
             self.py_table_factory = value
             self.opts.table_factory = value.get_table_factory()
 
+cdef class IngestExternalFileOptions(object):
+    cdef options.IngestExternalFileOptions* opts
 
+    def __cinit__(self, move_files=False):
+        self.opts = NULL
+        self.opts = new options.IngestExternalFileOptions()
+        self.opts.move_files = move_files
+        self.opts.snapshot_consistency = True
+        self.opts.allow_global_seqno = True
+        self.opts.allow_blocking_flush = True
 
+    property move_files:
+        def __get__(self):
+            return self.opts.move_files
+        def __set__(self, value):
+            self.opts.move_files = value
 
 cdef class EnvOptions(object):
     cdef env.EnvOptions env
@@ -1407,7 +1421,7 @@ cdef class Options(object):
                 else:
                     raise Exception("Unknown compaction style")
 
-    # Deprecate 
+    # Deprecate
     #  property filter_deletes:
         #  def __get__(self):
             #  return self.opts.filter_deletes
@@ -1606,7 +1620,7 @@ cdef class StringWrapper:
 
     #cdef public string s
     pass
-    
+
 
 @cython.no_gc_clear
 cdef class DB(object):
@@ -2115,10 +2129,17 @@ cdef class DB(object):
         del self.cf_handles[name]
 
     def add_file(self, path, move_file=False):
-        cdef string sst_path
-        sst_path = bytes_to_string(path)
         st = self.db.AddFile(path, move_file)
         check_status(st)
+
+    def ingest_external_files(self, paths, move_files=False):
+        cdef options.IngestExternalFileOptions options
+
+        #options = options.IngestExternalFileOptions(move_files=move_files)
+        options.move_files = True
+        st = self.db.IngestExternalFile(paths, options)
+        check_status(st)
+
 
     @staticmethod
     def __parse_read_opts(
